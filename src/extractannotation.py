@@ -1,5 +1,5 @@
 import sqlite3
-from urllib import unquote,
+from urllib import unquote
 from urlparse import urlparse
 import os
 import pdfannotation
@@ -14,6 +14,9 @@ HIGHLIGHTSQUERY = """SELECT Files.localUrl, FileHighlightRects.page,
                     LEFT JOIN FileHighlightRects
                         ON FileHighlightRects.highlightId=FileHighlights.id
                     WHERE FileHighlightRects.page IS NOT NULL"""
+
+global OVERWRITE_PDFS
+OVERWRITE_PDFS = False
 
 def converturl2abspath(url):
     pth = unquote(str(urlparse(url).path)).decode("utf8") #this is necessary for filenames with unicode strings
@@ -57,6 +60,14 @@ def processpdf(fn, fn_out, coords):
         return
     outpdf = PyPDF2.PdfFileWriter()
     outpdf = highlight_in_document(inpdf, outpdf, coords)
+    if os.path.isfile(fn_out):
+        if not OVERWRITE_PDFS:
+            print "%s exists skipping"%fn_out
+            return
+        else:
+            print "overwriting %s"%fn_out
+    else:
+        print "writing pdf to %s"%fn_out
     outpdf.write(open(fn_out, "wb"))
 
 def mendeley2pdf(fn_db, dir_pdf):
@@ -66,13 +77,19 @@ def mendeley2pdf(fn_db, dir_pdf):
         processpdf(fn, os.path.join(dir_pdf, os.path.basename(fn)), locs)
 
 if __name__ == "__main__":
-    import sys
-    try:
-        fn = os.path.abspath(sys.argv[1])
-        dir_pdf = os.path.abspath(sys.argv[2])
-    except:
-        print "Usage: %s mendleydatabase pdfdirectory"
-        sys.exit(-1)
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("mendeleydb", help="The mendeley sqlite database file",
+                        type=str)
+    parser.add_argument("dest", help="""The destination directory where to
+                        save the annotated pdfs""", type=str)
+    parser.add_argument("-w", "--overwrite", help="""Overwrite any PDF files in
+                        the destination directory""", action="store_true")
+    args = parser.parse_args()
+    fn = os.path.abspath(args.mendeleydb)
+    dir_pdf = os.path.abspath(args.dest)
+    if args.overwrite:
+        OVERWRITE_PDFS = True
     mendeley2pdf(fn, dir_pdf)
 
 
