@@ -1,8 +1,12 @@
 import sqlite3
-import popplerqt4
-import PyQt4
-from urllib.parse import urlparse, unquote
+#import popplerqt4
+#import PyQt4
+#from urllib.parse import urlparse, unquote
+from urllib import unquote
+from urlparse import urlparse
 import os
+import pdfannotation
+import PyPDF2
 
 HIGHLIGHTSQUERY = """SELECT Files.localUrl, FileHighlightRects.page,
                             FileHighlightRects.x1, FileHighlightRects.y1,
@@ -14,35 +18,38 @@ HIGHLIGHTSQUERY = """SELECT Files.localUrl, FileHighlightRects.page,
                         ON FileHighlightRects.highlightId=FileHighlights.id
                     WHERE FileHighlightRects.page IS NOT NULL"""
 
-
-def create_bbox(x1, y1, x2, y2):
-    rc = PyQt4.QtCore.QRectF()
-    rc.setCoords(x1,y1,x2,y2)
-    return rc
-
-def get_highlighted_text(doc, pgno, bbox):
-    pg = doc.page(pgno-1)
-    return pg.text(bbox)
+def converturl2abspath(url):
+    return os.path.abspath(unquote(urlparse(url).path))
 
 def parse_query(res):
     highlights = {}
     for r in res:
-        pth = os.path.abspath(unquote(urlparse(r[0]).path))
-        bbox = create_bbox(r[2], r[3], r[4], r[5])
+        pth = converturl2abspath(r[0])
+        bbox = [[r[2], r[3], r[4], r[5]]]
         pg = r[1]
         if pth in highlights:
-            highlights[pth].append([pg, bbox])
+            if pg in highlights[pth]:
+                highlights[pth][pg].append(bbox)
+            else:
+                highlights[pth][pg] = [bbox]
         else:
-            highlights[pth] = [[pg, bbox]]
+            highlights[pth] = {pg: [bbox]}
     return highlights
 
-def highlight_in_document(fn, highlights):
-    doc = popplerqt4.Poppler.Document.load(fn)
-    for hn in highlights:
-        print("====%d===="%hn[0])
-        print("----")
-        print(str(get_highlighted_text(doc, hn[0], hn[1])))
-        print("----")
+def highlight_in_document(inpdf, outpdf, highlights):
+    for pg in highlights.keys():
+        inpg = inpdf.getPage(pg-1)
+        for hn in highlights[pg]:
+            annot = pdfannotation.highlight_annotation(hn)
+            pdfannotation.add_annotation(outpdf, inpg, annot)
+        outpdf.addPage(inpg)
+    return outpdf
+
+def processpdf(fn, fn_out, highlights):
+    inpdf = PyPDF2.PdfFileReader(fn)
+    outpdf = PyPDF2.PdfFileWriter()
+    outpdf = highlight_in_document(inpdf, outpdf, highlights)
+    outpdf.write(open(fn_out, "wb"))
 
 
 if __name__ == "__main__":
@@ -53,7 +60,7 @@ if __name__ == "__main__":
     ret = db.execute(HIGHLIGHTSQUERY)
     hh = parse_query(ret)
     ff = "/home/jschrod/Uni/Papers/Mendeley/He et al._2010.pdf"
-    highlight_in_document(ff, hh[ff])
+    #highlight_in_document(ff, hh[ff])
 
 
 
