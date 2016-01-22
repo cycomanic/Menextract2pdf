@@ -4,6 +4,7 @@ from urlparse import urlparse
 import os
 import pdfannotation
 import PyPDF2
+import warnings
 
 HIGHLIGHTSQUERY = """SELECT Files.localUrl, FileHighlightRects.page,
                             FileHighlightRects.x1, FileHighlightRects.y1,
@@ -56,7 +57,7 @@ def processpdf(fn, fn_out, coords):
             inpdf._override_encryption = True
             inpdf._flatten()
     except IOError:
-        Warning("Could not find pdffile %s"%fn)
+        print "Could not find pdffile %s"%fn
         return
     outpdf = PyPDF2.PdfFileWriter()
     outpdf = highlight_in_document(inpdf, outpdf, coords)
