@@ -1,3 +1,8 @@
+# Copyright 2016 Jochen Schröder
+#
+# This file is distributed under the terms of the
+# GPLv3 licence. See the COPYING file for details
+
 import sqlite3
 from urllib import unquote
 from urlparse import urlparse
