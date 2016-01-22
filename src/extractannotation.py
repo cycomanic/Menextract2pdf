@@ -36,31 +36,37 @@ def parse_query(res):
             highlights[pth] = {pg: [bbox]}
     return highlights
 
-def highlight_in_document(inpdf, outpdf, highlights):
-    for pg in highlights.keys():
+def highlight_in_document(inpdf, outpdf, coords):
+    for pg in coords.keys():
         inpg = inpdf.getPage(pg-1)
-        for hn in highlights[pg]:
-            annot = pdfannotation.highlight_annotation(hn)
+        for crd in coords[pg]:
+            annot = pdfannotation.highlight_annotation(crd)
             pdfannotation.add_annotation(outpdf, inpg, annot)
         outpdf.addPage(inpg)
     return outpdf
 
-def processpdf(fn, fn_out, highlights):
+def processpdf(fn, fn_out, coords):
     inpdf = PyPDF2.PdfFileReader(fn)
     outpdf = PyPDF2.PdfFileWriter()
-    outpdf = highlight_in_document(inpdf, outpdf, highlights)
+    outpdf = highlight_in_document(inpdf, outpdf, coords)
     outpdf.write(open(fn_out, "wb"))
 
+def mendeley2pdf(fn_db, dir_pdf):
+    db = sqlite3.connect(fn_db)
+    highlights = parse_query(HIGHLIGHTSQUERY)
+    for fn, loc in highlights:
+        processpdf(fn, os.path.join(dir_pdf, os.path.basename(fn)), loc)
 
 if __name__ == "__main__":
     import sys
+    try:
+        fn = os.path.abspath(sys.argv[1])
+        dir_pdf = os.path.abspath(sys.argv[2])
+    except:
+        print "Usage: %s mendleydatabase pdfdirectory"
+        sys.exit(-1)
+    mendeley2pdf(fn, dir_pdf)
 
-    fn = sys.argv[1]
-    db = sqlite3.connect(fn)
-    ret = db.execute(HIGHLIGHTSQUERY)
-    hh = parse_query(ret)
-    ff = "/home/jschrod/Uni/Papers/Mendeley/He et al._2010.pdf"
-    #highlight_in_document(ff, hh[ff])
 
 
 
