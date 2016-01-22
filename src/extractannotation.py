@@ -1,9 +1,5 @@
 import sqlite3
-#import popplerqt4
-#import PyQt4
-#from urllib.parse import urlparse, unquote
-from urllib import unquote, urlopen
-from StringIO import StringIO
+from urllib import unquote,
 from urlparse import urlparse
 import os
 import pdfannotation
@@ -48,7 +44,6 @@ def highlight_in_document(inpdf, outpdf, coords):
     return outpdf
 
 def processpdf(fn, fn_out, coords):
-    print fn
     try:
         inpdf = PyPDF2.PdfFileReader(open(fn, 'rb'))
         if inpdf.isEncrypted:
