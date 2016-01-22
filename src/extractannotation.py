@@ -51,14 +51,12 @@ def processpdf(fn, fn_out, coords):
     print fn
     try:
         inpdf = PyPDF2.PdfFileReader(open(fn, 'rb'))
-        #inpdf = PyPDF2.PdfFileReader(StringIO(urlopen(fn).read()))
         if inpdf.isEncrypted:
-            #print "file %s encrypted"%fn
-            #inpdf.decrypt(' ')
+            # PyPDF2 seems to think some files are encrypted even
+            # if they are not. We just ignore the encryption.
+            # This seems to work for the one file where I saw this issue
             inpdf._override_encryption = True
-            #inpdf.getNumPages()
             inpdf._flatten()
-            #return
     except IOError:
         Warning("Could not find pdffile %s"%fn)
         return
