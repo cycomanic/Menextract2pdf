@@ -2,7 +2,8 @@ import sqlite3
 #import popplerqt4
 #import PyQt4
 #from urllib.parse import urlparse, unquote
-from urllib import unquote
+from urllib import unquote, urlopen
+from StringIO import StringIO
 from urlparse import urlparse
 import os
 import pdfannotation
@@ -19,7 +20,8 @@ HIGHLIGHTSQUERY = """SELECT Files.localUrl, FileHighlightRects.page,
                     WHERE FileHighlightRects.page IS NOT NULL"""
 
 def converturl2abspath(url):
-    return os.path.abspath(unquote(urlparse(url).path))
+    pth = unquote(str(urlparse(url).path)).decode("utf8") #this is necessary for filenames with unicode strings
+    return os.path.abspath(pth)
 
 def parse_query(res):
     highlights = {}
@@ -46,16 +48,29 @@ def highlight_in_document(inpdf, outpdf, coords):
     return outpdf
 
 def processpdf(fn, fn_out, coords):
-    inpdf = PyPDF2.PdfFileReader(fn)
+    print fn
+    try:
+        inpdf = PyPDF2.PdfFileReader(open(fn, 'rb'))
+        #inpdf = PyPDF2.PdfFileReader(StringIO(urlopen(fn).read()))
+        if inpdf.isEncrypted:
+            #print "file %s encrypted"%fn
+            #inpdf.decrypt(' ')
+            inpdf._override_encryption = True
+            #inpdf.getNumPages()
+            inpdf._flatten()
+            #return
+    except IOError:
+        Warning("Could not find pdffile %s"%fn)
+        return
     outpdf = PyPDF2.PdfFileWriter()
     outpdf = highlight_in_document(inpdf, outpdf, coords)
     outpdf.write(open(fn_out, "wb"))
 
 def mendeley2pdf(fn_db, dir_pdf):
     db = sqlite3.connect(fn_db)
-    highlights = parse_query(HIGHLIGHTSQUERY)
-    for fn, loc in highlights:
-        processpdf(fn, os.path.join(dir_pdf, os.path.basename(fn)), loc)
+    highlights = parse_query(db.execute(HIGHLIGHTSQUERY))
+    for fn, locs in highlights.iteritems():
+        processpdf(fn, os.path.join(dir_pdf, os.path.basename(fn)), locs)
 
 if __name__ == "__main__":
     import sys
