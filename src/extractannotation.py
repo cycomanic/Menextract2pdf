@@ -39,6 +39,7 @@ def convert2datetime(s):
     return dtparser.parse(s)
 
 def converturl2abspath(url):
+    """Convert a url string to an absolute path"""
     pth = unquote(str(urlparse(url).path)).decode("utf8") #this is necessary for filenames with unicode strings
     return os.path.abspath(pth)
 
