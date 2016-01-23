@@ -10,10 +10,12 @@ import os
 import pdfannotation
 import PyPDF2
 import warnings
+from dateutil import parser as dtparser
 
 HIGHLIGHTSQUERY = """SELECT Files.localUrl, FileHighlightRects.page,
                             FileHighlightRects.x1, FileHighlightRects.y1,
-                            FileHighlightRects.x2, FileHighlightRects.y2
+                            FileHighlightRects.x2, FileHighlightRects.y2,
+                            FileHighlights.createdTime
                     FROM Files
                     LEFT JOIN FileHighlights
                         ON FileHighlights.fileHash=Files.hash
@@ -23,7 +25,8 @@ HIGHLIGHTSQUERY = """SELECT Files.localUrl, FileHighlightRects.page,
 
 NOTESQUERY = """SELECT Files.localUrl, FileNotes.page,
                             FileNotes.x, FileNotes.y,
-                            FileNotes.author, FileNotes.note
+                            FileNotes.author, FileNotes.note,
+                            FileNotes.modifiedTime
                     FROM Files
                     LEFT JOIN FileNotes
                         ON FileNotes.fileHash=Files.hash
@@ -31,6 +34,9 @@ NOTESQUERY = """SELECT Files.localUrl, FileNotes.page,
 
 global OVERWRITE_PDFS
 OVERWRITE_PDFS = False
+
+def convert2datetime(s):
+    return dtparser.parse(s)
 
 def converturl2abspath(url):
     pth = unquote(str(urlparse(url).path)).decode("utf8") #this is necessary for filenames with unicode strings
@@ -41,13 +47,15 @@ def parse_highlights(res, highlights={}):
         pth = converturl2abspath(r[0])
         pg = r[1]
         bbox = [[r[2], r[3], r[4], r[5]]]
+        cdate = convert2datetime(r[6])
+        hlight = {"rect": bbox, "cdate": cdate}
         if pth in highlights:
             if pg in highlights[pth] and 'highlights' in highlights[pth][pg]:
-                highlights[pth][pg]['highlights'].append(bbox)
+                highlights[pth][pg]['highlights'].append(hlight)
             else:
-                highlights[pth][pg] = {'highlights': [bbox]}
+                highlights[pth][pg] = {'highlights': [hlight]}
         else:
-            highlights[pth] = {pg: {'highlights':[bbox]}}
+            highlights[pth] = {pg: {'highlights':[hlight]}}
     return highlights
 
 def parse_notes(res, notes={}):
@@ -57,7 +65,8 @@ def parse_notes(res, notes={}):
         bbox = [r[2], r[3], r[2]+30, r[3]+30] # needs a rectangle however size does not matter
         author = r[4]
         txt = r[5]
-        note = {"rect": bbox, "author": author, "content": txt}
+        cdate = convert2datetime(r[6])
+        note = {"rect": bbox, "author": author, "content": txt, "cdate":cdate}
         if pth in notes:
             if pg in notes[pth] and 'notes' in notes[pth][pg]:
                 notes[pth][pg]['notes'].append(note)
@@ -74,13 +83,14 @@ def add_annotation2pdf(inpdf, outpdf, annotations):
         if 'highlights' in annotations[pg]:
             print "pg=%d highlight"%pg
             for hn in annotations[pg]['highlights']:
-                annot = pdfannotation.highlight_annotation(hn)
+                annot = pdfannotation.highlight_annotation(hn["rect"], cdate=hn["cdate"])
                 pdfannotation.add_annotation(outpdf, inpg, annot)
         if 'notes' in annotations[pg]:
             print "pg=%d note"%pg
             for nt in annotations[pg]['notes']:
                 print "pg=%d note=%s"%(pg, nt["content"])
-                note = pdfannotation.text_annotation(nt["rect"], contents=nt["content"], author=nt["author"])
+                note = pdfannotation.text_annotation(nt["rect"], contents=nt["content"], author=nt["author"],
+                                                     cdate=nt["cdate"])
                 pdfannotation.add_annotation(outpdf, inpg, note)
         outpdf.addPage(inpg)
     return outpdf
