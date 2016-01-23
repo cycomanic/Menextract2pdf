@@ -16,19 +16,20 @@ def now():
     return TextStringObject(datetime.utcnow().strftime("D:%Y%m%d%H%M%SZ00'00"))
 
 def _markup_annotation(rect, contents=None, author=None, subject=None,
-                       creationdate=None, color=None, alpha=1, flag=4):
+                       cdate=None, color=None, alpha=1, flag=4):
     """Set shared properties of all markup annotations."""
 
-    if creationdate == None:
-        creationdate = now()
+    if cdate == None:
+        cdate = now()
     else:
-        assert isinstance(creationdate, datetime), "creationdate is not a datetime object"
-        TextStringObject(creationdate.strftime("D:%Y%m%d%H%M%SZ00'00"))
+        assert isinstance(cdate, datetime), "cdate is not a datetime object"
+        cdate = TextStringObject(cdate.strftime("D:%Y%m%d%H%M%SZ00'00"))
+        print cdate
     retval = DictionaryObject({ NameObject('/CA'): FloatObject(alpha),
                                 NameObject('/F'): NumberObject(flag),
                                 NameObject('/Rect'): float_array(rect),
                                 NameObject('/Type'): NameObject('/Annot'),
-                                NameObject('/CreationDate'): creationdate,
+                                NameObject('/CreationDate'): cdate,
                                 NameObject('/M'): now(),
                              })
     retval.popup = False  # Whether to add an explicit popup when adding to page
@@ -59,7 +60,7 @@ def _popup_annotation(parent, rect=None):
 
 
 def highlight_annotation(quadpoints, contents=None, author=None,
-                         subject=None, creationdate=None, color=YELLOW, alpha=1, flag=4):
+                         subject=None, cdate=None, color=YELLOW, alpha=1, flag=4):
     """Create a 'Highlight' annotation that covers the area given by quadpoints.
 
     Inputs: quadpoints  A list of rectangles to be highlighted as part of this
@@ -93,14 +94,14 @@ def highlight_annotation(quadpoints, contents=None, author=None,
     rect = [min(quadpoints_col(0)), min(quadpoints_col(1)),
             max(quadpoints_col(2)), max(quadpoints_col(3))]
 
-    retval = _markup_annotation(rect, contents, author, subject, creationdate,
+    retval = _markup_annotation(rect, contents, author, subject, cdate,
                                 color, alpha, flag)
     retval[NameObject('/Subtype')] = NameObject('/Highlight')
     retval[NameObject('/QuadPoints')] = float_array(qpl)
     return retval
 
 def text_annotation(rect, contents=None, author=None, subject=None,
-                    creationdate=None, color=YELLOW, alpha=1, flag=4,
+                    cdate=None, color=YELLOW, alpha=1, flag=4,
                     icon=None, open_=False, state=None, state_model=None):
     """Create a 'Text' annotation, a sticky note at the location rect.
 
@@ -112,7 +113,7 @@ def text_annotation(rect, contents=None, author=None, subject=None,
             author      annotation
             subject
 
-            creationdate
+            cdate
 
             color       The color of the note, as an array of type
                         [g], [r,g,b], or [c,m,y,k].
@@ -133,7 +134,7 @@ def text_annotation(rect, contents=None, author=None, subject=None,
     Output: A DictionaryObject representing the annotation.
 
     """
-    retval = _markup_annotation(rect, contents, author, subject, creationdate,
+    retval = _markup_annotation(rect, contents, author, subject, cdate,
                                 color, alpha, flag)
     retval.popup = True
     retval[NameObject('/Subtype')] = NameObject('/Text')
