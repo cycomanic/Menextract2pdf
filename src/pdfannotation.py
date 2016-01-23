@@ -2,6 +2,8 @@
 #
 # This file is part of prsannots and is distributed under the terms of
 # the LGPL license.  See the file COPYING for full details.
+#
+# 2016 Jochen Schroeder - added creation time
 
 from datetime import datetime
 from PyPDF2.generic import *
