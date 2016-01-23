@@ -22,7 +22,7 @@ def _markup_annotation(rect, contents=None, author=None, subject=None,
     if creationdate == None:
         creationdate = now()
     else:
-        assert isinstance(creationdate, datetime)
+        assert isinstance(creationdate, datetime), "creationdate is not a datetime object"
         TextStringObject(creationdate.strftime("D:%Y%m%d%H%M%SZ00'00"))
     retval = DictionaryObject({ NameObject('/CA'): FloatObject(alpha),
                                 NameObject('/F'): NumberObject(flag),
