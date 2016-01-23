@@ -26,7 +26,6 @@ def _markup_annotation(rect, contents=None, author=None, subject=None,
     else:
         assert isinstance(cdate, datetime), "cdate is not a datetime object"
         cdate = TextStringObject(cdate.strftime("D:%Y%m%d%H%M%SZ00'00"))
-        print cdate
     retval = DictionaryObject({ NameObject('/CA'): FloatObject(alpha),
                                 NameObject('/F'): NumberObject(flag),
                                 NameObject('/Rect'): float_array(rect),
@@ -174,7 +173,7 @@ if __name__ == '__main__':
     try:
         inpdf = pyPdf.PdfFileReader(open(sys.argv[1], 'rb'))
     except (IndexError, IOError):
-   #     print "Needs PDF file as an argument."
+        print "Needs PDF file as an argument."
         raise SystemExit
     annot1 = highlight_annotation([[100, 100, 400, 125]],
                 'An argument is a connected series of statements intended to establish a proposition.',
@@ -187,4 +186,4 @@ if __name__ == '__main__':
     add_annotation(outpdf, page, annot2)
     outpdf.addPage(page)
     outpdf.write(open('pythonannotation.pdf', 'wb'))
-   # print "Highlighted PDF output to pythonannotation.pdf"
+    print "Highlighted PDF output to pythonannotation.pdf"

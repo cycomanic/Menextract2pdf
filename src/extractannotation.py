@@ -84,14 +84,11 @@ def add_annotation2pdf(inpdf, outpdf, annotations):
     for pg in annotations.keys():
         inpg = inpdf.getPage(pg-1)
         if 'highlights' in annotations[pg]:
-            print "pg=%d highlight"%pg
             for hn in annotations[pg]['highlights']:
                 annot = pdfannotation.highlight_annotation(hn["rect"], cdate=hn["cdate"])
                 pdfannotation.add_annotation(outpdf, inpg, annot)
         if 'notes' in annotations[pg]:
-            print "pg=%d note"%pg
             for nt in annotations[pg]['notes']:
-                print "pg=%d note=%s"%(pg, nt["content"])
                 note = pdfannotation.text_annotation(nt["rect"], contents=nt["content"], author=nt["author"],
                                                      cdate=nt["cdate"])
                 pdfannotation.add_annotation(outpdf, inpg, note)
