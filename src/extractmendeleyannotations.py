@@ -12,9 +12,6 @@ import PyPDF2
 import warnings
 from dateutil import parser as dtparser
 
-
-
-
 global OVERWRITE_PDFS
 OVERWRITE_PDFS = False
 
@@ -27,6 +24,21 @@ def converturl2abspath(url):
     return os.path.abspath(pth)
 
 def get_highlights_from_db(db, results={}):
+    """Extract the locations of highlights from the Mendeley database
+    and put results into dictionary.
+
+    Parameters
+    ==========
+    db :    sqlite3.connection
+        Mendeley sqlite database
+    results : dict, optional
+        Dictionary to hold the results. Default is an empty dictionary.
+
+    Returns
+    =======
+    results : dict
+        dictionary containing the query results
+    """
     query = """SELECT Files.localUrl, FileHighlightRects.page,
                             FileHighlightRects.x1, FileHighlightRects.y1,
                             FileHighlightRects.x2, FileHighlightRects.y2,
@@ -54,6 +66,21 @@ def get_highlights_from_db(db, results={}):
     return results
 
 def get_notes_from_db(db, results={}):
+    """Extract notes from the Mendeley database
+    and put results into dictionary.
+
+    Parameters
+    ==========
+    db :    sqlite3.connection
+        Mendeley sqlite database
+    results : dict, optional
+        Dictionary to hold the results. Default is an empty dictionary.
+
+    Returns
+    =======
+    results : dict
+        dictionary containing the query results
+    """
     query = """SELECT Files.localUrl, FileNotes.page,
                             FileNotes.x, FileNotes.y,
                             FileNotes.author, FileNotes.note,
