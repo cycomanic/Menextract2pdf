@@ -1,10 +1,10 @@
 # Menextract2pdf
-## Add Mendeley annotations to the PDF
+*Add Mendeley annotations to the PDF*
 
 Menextract2pdf extracts highlights and notes from the Mendeley database and adds
 them directly to all relevant PDF files, which can then be read by most PDF readers. 
 
-# Why?
+## Why?
 
 PDF highlights and notes in Mendeley are stored in the Mendeley database and can not
 be read by other programs. While it is possible to extract and save the
@@ -12,7 +12,7 @@ annotations to the PDF file, this is a tedious manual process requiring to open
 every PDF and selecting export to PDF for that file. Menextract2pdf provides
 a bulk export functionality.
  
-# Dependencies
+## Dependencies
 
 Menextract2pdf is written in python2.7. It requires the following packages:
 * PyPDF2
@@ -20,7 +20,7 @@ Menextract2pdf is written in python2.7. It requires the following packages:
 
 It further incorporate (with small adjustments) the pdfannotation.py file from  the [PRSAnnots https://github.com/rschroll/prsannots] project.
 
-# Usage
+## Usage
 
 ```python
 python menextract2pdf.py mendeley.sqlite /Destination/Dir/
@@ -32,7 +32,16 @@ overwriting use the ```python --overwrite``` flag.
 
 The software is tested on Linux, but should run on Windows or Mac as well. 
 
-# Versions
+## Versions
 
 * 0.1 first release
 
+## Licence
+
+The script is distributed under the GPLv3. The pdfannotations.py file is
+LGPLv3. 
+
+## Related projects
+
+* [Mendeley2Zotero https://github.com/flinz/mendeley2zotero]
+* [Adios_Mendeley https://github.com/rdiaz02/Adios_Mendeley]
