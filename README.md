@@ -28,7 +28,7 @@ python menextract2pdf.py mendeley.sqlite /Destination/Dir/
 where mendeley.sqlite is the mendeley database and /Destination/Dir/ is the
 directory where to store the annotated PDF files. By default menextract2pdf
 will not overwrite existing PDF files in the destination directory. To allow
-overwriting use the ```python --overwrite``` flag. 
+overwriting use the ```--overwrite``` flag. 
 
 The software is tested on Linux, but should run on Windows or Mac as well. 
 
