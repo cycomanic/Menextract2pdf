@@ -1,5 +1,5 @@
 # Menextract2pdf
-*Add Mendeley annotations to the PDF*
+*Extract Mendeley annotations to PDF Files*
 
 Menextract2pdf extracts highlights and notes from the Mendeley database and adds
 them directly to all relevant PDF files, which can then be read by most PDF readers. 
