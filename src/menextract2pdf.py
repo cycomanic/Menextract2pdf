@@ -57,8 +57,11 @@ def get_highlights_from_db(db, results={}):
         cdate = convert2datetime(r[6])
         hlight = {"rect": bbox, "cdate": cdate}
         if pth in results:
-            if pg in results[pth] and 'highlights' in results[pth][pg]:
-                results[pth][pg]['highlights'].append(hlight)
+            if pg in results[pth]:
+                if 'highlights' in results[pth][pg]:
+                    results[pth][pg]['highlights'].append(hlight)
+                else:
+                    results[pth][pg]['highlights'] = [hlight]
             else:
                 results[pth][pg] = {'highlights': [hlight]}
         else:
@@ -99,8 +102,11 @@ def get_notes_from_db(db, results={}):
         cdate = convert2datetime(r[6])
         note = {"rect": bbox, "author": author, "content": txt, "cdate":cdate}
         if pth in results:
-            if pg in results[pth] and 'notes' in results[pth][pg]:
-                results[pth][pg]['notes'].append(note)
+            if pg in results[pth]:
+                if 'notes' in results[pth][pg]:
+                    results[pth][pg]['notes'].append(note)
+                else:
+                    results[pth][pg]['notes']. = [note]
             else:
                 results[pth][pg] = {'notes': [note]}
         else:
