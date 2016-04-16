@@ -156,7 +156,7 @@ def mendeley2pdf(fn_db, dir_pdf):
     db = sqlite3.connect(fn_db)
     highlights = get_highlights_from_db(db)
     annotations_all = get_notes_from_db(db, highlights)
-    for fn, annons in highlights.iteritems():
+    for fn, annons in annotations_all.iteritems():
         processpdf(fn, os.path.join(dir_pdf, os.path.basename(fn)), annons)
 
 if __name__ == "__main__":
