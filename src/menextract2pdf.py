@@ -106,7 +106,7 @@ def get_notes_from_db(db, results={}):
                 if 'notes' in results[pth][pg]:
                     results[pth][pg]['notes'].append(note)
                 else:
-                    results[pth][pg]['notes']. = [note]
+                    results[pth][pg]['notes'] = [note]
             else:
                 results[pth][pg] = {'notes': [note]}
         else:
