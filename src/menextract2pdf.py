@@ -130,7 +130,7 @@ def add_annotation2pdf(inpdf, outpdf, annotations):
 
 def processpdf(fn, fn_out, annotations):
     try:
-        inpdf = PyPDF2.PdfFileReader(open(fn, 'rb'))
+        inpdf = PyPDF2.PdfFileReader(open(fn, 'rb'), strict=False)
         if inpdf.isEncrypted:
             # PyPDF2 seems to think some files are encrypted even
             # if they are not. We just ignore the encryption.
@@ -174,10 +174,3 @@ if __name__ == "__main__":
     if args.overwrite:
         OVERWRITE_PDFS = True
     mendeley2pdf(fn, dir_pdf)
-
-
-
-
-
-
-
