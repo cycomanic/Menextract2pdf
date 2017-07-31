@@ -114,17 +114,18 @@ def get_notes_from_db(db, results={}):
     return results
 
 def add_annotation2pdf(inpdf, outpdf, annotations):
-    for pg in annotations.keys():
+    for pg in range(1, inpdf.getNumPages()+1):
         inpg = inpdf.getPage(pg-1)
-        if 'highlights' in annotations[pg]:
-            for hn in annotations[pg]['highlights']:
-                annot = pdfannotation.highlight_annotation(hn["rect"], cdate=hn["cdate"])
-                pdfannotation.add_annotation(outpdf, inpg, annot)
-        if 'notes' in annotations[pg]:
-            for nt in annotations[pg]['notes']:
-                note = pdfannotation.text_annotation(nt["rect"], contents=nt["content"], author=nt["author"],
-                                                     cdate=nt["cdate"])
-                pdfannotation.add_annotation(outpdf, inpg, note)
+        if pg in annotations.keys():
+            if 'highlights' in annotations[pg]:
+                for hn in annotations[pg]['highlights']:
+                    annot = pdfannotation.highlight_annotation(hn["rect"], cdate=hn["cdate"])
+                    pdfannotation.add_annotation(outpdf, inpg, annot)
+            if 'notes' in annotations[pg]:
+                for nt in annotations[pg]['notes']:
+                    note = pdfannotation.text_annotation(nt["rect"], contents=nt["content"], author=nt["author"],
+                                                         cdate=nt["cdate"])
+                    pdfannotation.add_annotation(outpdf, inpg, note)
         outpdf.addPage(inpg)
     return outpdf
 
@@ -174,10 +175,3 @@ if __name__ == "__main__":
     if args.overwrite:
         OVERWRITE_PDFS = True
     mendeley2pdf(fn, dir_pdf)
-
-
-
-
-
-
-
