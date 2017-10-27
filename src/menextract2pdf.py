@@ -3,6 +3,7 @@
 # This file is distributed under the terms of the
 # GPLv3 licence. See the COPYING file for details
 
+from __future__ import print_function
 import sqlite3
 from urllib import unquote
 from urlparse import urlparse
@@ -138,18 +139,18 @@ def processpdf(fn, fn_out, annotations):
             inpdf._override_encryption = True
             inpdf._flatten()
     except IOError:
-        print "Could not find pdffile %s"%fn
+        print("Could not find pdffile %s"%fn)
         return
     outpdf = PyPDF2.PdfFileWriter()
     outpdf = add_annotation2pdf(inpdf, outpdf, annotations)
     if os.path.isfile(fn_out):
         if not OVERWRITE_PDFS:
-            print "%s exists skipping"%fn_out
+            print("%s exists skipping"%fn_out)
             return
         else:
-            print "overwriting %s"%fn_out
+            print("overwriting %s"%fn_out)
     else:
-        print "writing pdf to %s"%fn_out
+        print("writing pdf to %s"%fn_out)
     outpdf.write(open(fn_out, "wb"))
 
 def mendeley2pdf(fn_db, dir_pdf):
