@@ -5,8 +5,11 @@
 
 from __future__ import print_function
 import sqlite3
-from urllib import unquote
-from urlparse import urlparse
+try:
+    from urllib.parse import unquote, urlparse
+except:
+    from urlparse import urlparse
+    from urllib import unquote
 import os
 import pdfannotation
 import PyPDF2
@@ -21,7 +24,10 @@ def convert2datetime(s):
 
 def converturl2abspath(url):
     """Convert a url string to an absolute path"""
-    pth = unquote(str(urlparse(url).path)).decode("utf8") #this is necessary for filenames with unicode strings
+    try:
+        pth = unquote(urlparse(url).path) #this is necessary for filenames with unicode strings
+    except:
+        pth = unquote(str(urlparse(url).path)).decode("utf8") #this is necessary for filenames with unicode strings
     return os.path.abspath(pth)
 
 def get_highlights_from_db(db, results={}):
@@ -158,7 +164,7 @@ def mendeley2pdf(fn_db, dir_pdf):
     db = sqlite3.connect(fn_db)
     highlights = get_highlights_from_db(db)
     annotations_all = get_notes_from_db(db, highlights)
-    for fn, annons in annotations_all.iteritems():
+    for fn, annons in annotations_all.items():
         processpdf(fn, os.path.join(dir_pdf, os.path.basename(fn)), annons)
 
 if __name__ == "__main__":
