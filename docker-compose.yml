@@ -1,0 +1,14 @@
+version: '3'
+services:
+  menextract2pdf:
+    build: .
+    image: menextract2pdf:latest
+    volumes:
+      # Where to write output to?
+      - "~/Desktop/:/out/"
+      # Mendeley seems to refer to PDF files using absolute paths. Thus the entire path must be volumed into Docker. This is OS specific.
+      - "/Users/$USER/Library/Application Support/Mendeley Desktop/:/Users/$USER/Library/Application Support/Mendeley Desktop/"
+    entrypoint:
+      - ./menextract2pdf.sh
+      - "/Users/$USER/Library/Application Support/Mendeley Desktop/"
+      - "/out"
