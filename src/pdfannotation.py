@@ -42,6 +42,9 @@ def _markup_annotation(rect, contents=None, author=None, subject=None,
     if subject is not None:
         retval[NameObject('/Subj')] = TextStringObject(subject)
     if color is not None:
+        if color[0] == '#':  # convert hex to RGB
+            color = color.lstrip('#')
+            color = [int(color[i:i+2], 16)/255.0 for i in (0,2,4)]
         retval[NameObject('/C')] = float_array(color)
     return retval
 
