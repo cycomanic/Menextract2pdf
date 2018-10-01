@@ -49,7 +49,7 @@ def get_highlights_from_db(db, results={}):
     query = """SELECT Files.localUrl, FileHighlightRects.page,
                             FileHighlightRects.x1, FileHighlightRects.y1,
                             FileHighlightRects.x2, FileHighlightRects.y2,
-                            FileHighlights.createdTime
+                            FileHighlights.createdTime, FileHighlights.color
                     FROM Files
                     LEFT JOIN FileHighlights
                         ON FileHighlights.fileHash=Files.hash
@@ -62,7 +62,8 @@ def get_highlights_from_db(db, results={}):
         pg = r[1]
         bbox = [[r[2], r[3], r[4], r[5]]]
         cdate = convert2datetime(r[6])
-        hlight = {"rect": bbox, "cdate": cdate}
+        color = r[7]
+        hlight = {"rect": bbox, "cdate": cdate, "color": color}
         if pth in results:
             if pg in results[pth]:
                 if 'highlights' in results[pth][pg]:
@@ -94,7 +95,7 @@ def get_notes_from_db(db, results={}):
     query = """SELECT Files.localUrl, FileNotes.page,
                             FileNotes.x, FileNotes.y,
                             FileNotes.author, FileNotes.note,
-                            FileNotes.modifiedTime
+                            FileNotes.modifiedTime, FileNotes.color
                     FROM Files
                     LEFT JOIN FileNotes
                         ON FileNotes.fileHash=Files.hash
@@ -107,7 +108,8 @@ def get_notes_from_db(db, results={}):
         author = r[4]
         txt = r[5]
         cdate = convert2datetime(r[6])
-        note = {"rect": bbox, "author": author, "content": txt, "cdate":cdate}
+        color = r[7]
+        note = {"rect": bbox, "author": author, "content": txt, "cdate":cdate, "color": color}
         if pth in results:
             if pg in results[pth]:
                 if 'notes' in results[pth][pg]:
@@ -126,12 +128,19 @@ def add_annotation2pdf(inpdf, outpdf, annotations):
         if pg in annotations.keys():
             if 'highlights' in annotations[pg]:
                 for hn in annotations[pg]['highlights']:
-                    annot = pdfannotation.highlight_annotation(hn["rect"], cdate=hn["cdate"])
+                    if hn['color'] is not None:
+                        annot = pdfannotation.highlight_annotation(hn["rect"], cdate=hn["cdate"], color=hn["color"])
+                    else:
+                        annot = pdfannotation.highlight_annotation(hn["rect"], cdate=hn["cdate"])
                     pdfannotation.add_annotation(outpdf, inpg, annot)
             if 'notes' in annotations[pg]:
                 for nt in annotations[pg]['notes']:
-                    note = pdfannotation.text_annotation(nt["rect"], contents=nt["content"], author=nt["author"],
-                                                         cdate=nt["cdate"])
+                    if nt['color'] is not None:
+                        note = pdfannotation.text_annotation(nt["rect"], contents=nt["content"], author=nt["author"],
+                                                             color=nt["color"], cdate=nt["cdate"])
+                    else:
+                        note = pdfannotation.text_annotation(nt["rect"], contents=nt["content"], author=nt["author"],
+                                                             cdate=nt["cdate"])
                     pdfannotation.add_annotation(outpdf, inpg, note)
         outpdf.addPage(inpg)
     return outpdf
